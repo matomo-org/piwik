@@ -240,14 +240,10 @@ class CoreHome extends \Piwik\Plugin
         $jsFiles[] = "plugins/CoreHome/angularjs/sparkline/sparkline.component.js";
 
         $jsFiles[] = "plugins/CoreHome/angularjs/siteselector/siteselector-model.service.js";
-        $jsFiles[] = "plugins/CoreHome/angularjs/siteselector/siteselector.controller.js";
-        $jsFiles[] = "plugins/CoreHome/angularjs/siteselector/siteselector.directive.js";
 
         $jsFiles[] = "plugins/CoreHome/angularjs/menudropdown/menudropdown.directive.js";
 
-        $jsFiles[] = "plugins/CoreHome/angularjs/enrichedheadline/enrichedheadline.directive.js";
         $jsFiles[] = "plugins/CoreHome/angularjs/content-intro/content-intro.directive.js";
-        $jsFiles[] = "plugins/CoreHome/angularjs/content-block/content-block.directive.js";
 
         $jsFiles[] = "plugins/CoreHome/angularjs/notification/notification.controller.js";
         $jsFiles[] = "plugins/CoreHome/angularjs/notification/notification.directive.js";
@@ -322,6 +318,8 @@ class CoreHome extends \Piwik\Plugin
         $jsFiles[] = "plugins/CorePluginsAdmin/angularjs/plugins/plugin-upload.directive.js";
         $jsFiles[] = "node_modules/iframe-resizer/js/iframeResizer.min.js";
         $jsFiles[] = "node_modules/iframe-resizer/js/iframeResizer.contentWindow.min.js";
+
+        $jsFiles[] = "plugins/CoreHome/react/build/main.js";
     }
 
     public function getClientSideTranslationKeys(&$translationKeys)
