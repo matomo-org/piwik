@@ -4,6 +4,8 @@
 
 {% block content %}
 
-    <div ng-include="'plugins/SitesManager/templates/index.html?cb={{ cacheBuster }}'"></div>
+    <div class="vue-app">
+        <matomo-sites-manager></matomo-sites-manager>
+    </div>
 
 {% endblock %}
