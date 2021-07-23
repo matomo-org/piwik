@@ -1057,6 +1057,7 @@ password = ; Proxy password: optional; if specified, username is mandatory
 Plugins[] = CorePluginsAdmin
 Plugins[] = CoreAdminHome
 Plugins[] = CoreHome
+Plugins[] = CoreAngular
 Plugins[] = WebsiteMeasurable
 Plugins[] = IntranetMeasurable
 Plugins[] = Diagnostics

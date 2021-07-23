@@ -847,7 +847,8 @@ Segmentation = (function($) {
         };
 
         if (piwikHelper.isAngularRenderingThePage()) {
-            angular.element(document).injector().invoke(function ($rootScope, $location) {
+            // TODO double check this works
+            angular.module('piwikApp').run(function ($rootScope, $location) {
                 $rootScope.$on('$locationChangeSuccess', function () {
                     var $search = $location.search();
 
@@ -908,7 +909,7 @@ $(document).ready(function() {
 
         this.changeSegment = function(segmentDefinition) {
             if (piwikHelper.isAngularRenderingThePage()) {
-                angular.element(document).injector().invoke(function ($location, $rootScope) {
+                angular.element(document.body).injector().invoke(function ($location, $rootScope) {
                     var $search = $location.search();
 
                     if (segmentDefinition !== $search.segment) {

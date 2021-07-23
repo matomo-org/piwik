@@ -13,8 +13,38 @@ use Piwik\Piwik;
 
 class JScriptUIAssetFetcher extends UIAssetFetcher
 {
+    /**
+     * @var bool
+     */
+    private $deferAssets;
+
+    public function __construct($plugins, $theme, $deferAssets = false)
+    {
+        parent::__construct($plugins, $theme);
+
+        $this->deferAssets = $deferAssets;
+    }
 
     protected function retrieveFileLocations()
+    {
+        if ($this->deferAssets) {
+            $this->retrieveFileLocationsForDeferAssets();
+        } else {
+            $this->retrieveFileLocationsForNormalAssets();
+        }
+    }
+
+    protected function retrieveFileLocationsForDeferAssets()
+    {
+        if (!empty($this->plugins)) {
+            /**
+             * TODO
+             */
+            Piwik::postEvent('AssetManager.getDeferJavaScriptFiles', array(&$this->fileLocations), null, $this->plugins);
+        }
+    }
+
+    protected function retrieveFileLocationsForNormalAssets()
     {
         if (!empty($this->plugins)) {
 
@@ -75,6 +105,9 @@ class JScriptUIAssetFetcher extends UIAssetFetcher
             'node_modules/jquery-ui-dist/jquery-ui.min.js',
             "plugins/CoreHome/javascripts/materialize-bc.js",
             "node_modules/jquery.browser/dist/jquery.browser.min.js",
+            "node_modules/rxjs/bundles/rxjs.umd.js",
+            'node_modules/angular',
+            "node_modules/@angular/",
             'node_modules/',
             'libs/',
             'js/',
@@ -86,7 +119,9 @@ class JScriptUIAssetFetcher extends UIAssetFetcher
             'plugins/CoreHome/javascripts/uiControl.js',
             'plugins/CoreHome/javascripts/broadcast.js',
             'plugins/CoreHome/javascripts/', // load CoreHome JS before other plugins
-            'plugins/',
+            'plugins/[\w]*/angular/dist/bundles/.*?.umd.js', // make sure angular modules exist before we define piwikApp
+            'plugins/(?!CoreAngular/angular/dist)',
+            'plugins/CoreAngular/angular/dist', // load CoreAngular Angular files after all other plugins, so angular will be bootstrapped
             'tests/',
         );
     }

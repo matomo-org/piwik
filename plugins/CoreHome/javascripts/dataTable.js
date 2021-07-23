@@ -57,7 +57,7 @@ DataTable.registerFooterIconHandler = function (id, handler) {
 
     if (handlers[id]) {
         setTimeout(function () { // fail gracefully
-            throw new Exception("DataTable footer icon handler '" + id + "' is already being used.")
+            throw new Error("DataTable footer icon handler '" + id + "' is already being used.")
         }, 1);
         return;
     }
@@ -1705,7 +1705,7 @@ $.extend(DataTable.prototype, UIControl.prototype, {
                         var helpParagraph = $('p[ng-bind-html]', $doc);
 
                         if (helpParagraph.length) {
-                            var $parse = angular.element(document).injector().get('$parse');
+                            var $parse = angular.element(document.body).injector().get('$parse');
                             helpParagraph.html($parse(helpParagraph.attr('ng-bind-html')));
                         }
 

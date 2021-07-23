@@ -11,6 +11,7 @@ namespace Piwik;
 use Exception;
 use Piwik\AssetManager\UIAssetCacheBuster;
 use Piwik\Container\StaticContainer;
+use Piwik\Plugin\Manager;
 use Piwik\View\ViewInterface;
 use Twig\Environment;
 use Twig\Error\Error;
@@ -264,6 +265,10 @@ class View implements ViewInterface
             $this->isInternetEnabled = SettingsPiwik::isInternetEnabled();
             $this->shouldPropagateTokenAuth = $this->shouldPropagateTokenAuthInAjaxRequests();
 
+            $pluginNames = Manager::getInstance()->getPluginsLoadedAndActivated();
+            $pluginNames = array_map(function (Plugin $p) { return $p->getPluginName(); }, $pluginNames);
+            $this->pluginsLoadedAndActivated = array_values($pluginNames);
+
             $piwikAds = StaticContainer::get('Piwik\ProfessionalServices\Advertising');
             $this->areAdsForProfessionalServicesEnabled = $piwikAds->areAdsForProfessionalServicesEnabled();
 
@@ -316,6 +321,8 @@ class View implements ViewInterface
     protected function renderTwigTemplate()
     {
         $output = $this->twig->render($this->getTemplateFile(), $this->getTemplateVars());
+        $output = $this->makeScriptsDefer($output);
+        $output = $this->makeInlineScriptsDomContentLoaded($output);
 
         if ($this->enableCacheBuster) {
             $output = $this->applyFilter_cacheBuster($output);
@@ -323,6 +330,50 @@ class View implements ViewInterface
 
         $helper = new Theme;
         $output = $helper->rewriteAssetsPathToTheme($output);
+        return $output;
+    }
+
+    protected function makeScriptsDefer($output)
+    {
+        $output = preg_replace_callback('%<script(.*?)>%', function ($matches) {
+            if (strpos($matches[0], 'defer') !== false) {
+                return $matches[0];
+            }
+            return '<script' . $matches[1] . ' defer>';
+        }, $output);
+        return $output;
+    }
+
+    protected function makeInlineScriptsDomContentLoaded($output)
+    {
+        // we only want to do this for the first render of the entire page. ajax requests shouldn't do this. for now
+        // detecting via the random query parameter
+        $isRandomPresent = Common::getRequestVar('random', false) !== false;
+        if ($isRandomPresent) {
+            return $output;
+        }
+
+        $output = preg_replace_callback('%<script(.*?)>(.*?)</script>%s', function ($matches) {
+            if (strpos($matches[0], 'DOMContentLoaded') !== false
+                || strpos($matches[1], 'src=') !== false
+            ) {
+                return $matches[0];
+            }
+
+            if (strpos($matches[0], 'function _pk_translate') !== false
+                || strpos($matches[0], 'var piwik = {}') !== false
+                || strpos($matches[0], 'var translations =') !== false
+            ) { // don't do it for the js globals script
+                return $matches[0];
+            }
+
+            $replacedOutput = '<script' . $matches[1] . '>';
+            $replacedOutput .= 'window.addEventListener(\'DOMContentLoaded\', function() {
+    ' . $matches[2] . '
+});';
+            $replacedOutput .= '</script>';
+            return $replacedOutput;
+        }, $output);
         return $output;
     }
 
